@@ -40,13 +40,6 @@ const CharList = (props) => {
         if (newCharList.length < 9) {
             ended = true;   
         }
-        // this.setState(({charList, offset}) => ({
-        //     charList: [...charList, ...newCharList],
-        //     loading: false,
-        //     newItemLoading: false,
-        //     offset: offset + 9,
-        //     charEnded: ended
-        // }))
         setCharList(charList => [...charList, ...newCharList])
         setLoading(loading => false)
         setNewItemLoading(newItemLoading => false)
