@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import './charList.scss';
 
 
@@ -13,44 +13,37 @@ const CharList = (props) => {
 
 
     const [charList, setCharList] = useState([]);
-    const [loading, setLoading] = useState(true);
     let [newItemLoading, setNewItemLoading] = useState(false);
-    const [error, setError] = useState(false);
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false);
 
-    const marvelService = new MarvelService();
+    let {loading, error, getAllCharacters} = useMarvelService();
 
     useEffect(() => {
-        onRequest()
+        onRequest(true)
     }, [])
     
-    const onRequest = () => {
-        onCharListLoading()
-        marvelService.getAllCharacters(offset)
+    const onRequest = (initial) => {
+        initial ? setNewItemLoading(false) : setNewItemLoading(true);       
+        getAllCharacters(offset)
             .then(onCharListLoaded)
-            .catch(onError)
     }
 
-    const onCharListLoading = () => {
-        setNewItemLoading(true)
-    }
     const onCharListLoaded = (newCharList) => {
         let ended = false;
         if (newCharList.length < 9) {
             ended = true;   
         }
         setCharList(charList => [...charList, ...newCharList])
-        setLoading(loading => false)
         setNewItemLoading(newItemLoading => false)
         setOffset(offset => offset + 9)
         setCharEnded(charEnded => ended)
     }
-    const onError = () => {
-        setLoading(loading => false)
-        setNewItemLoading(newItemLoading => false)
-        setError(true)
-    }
+    // const onError = () => {
+    //     setLoading(loading => false)
+    //     setNewItemLoading(newItemLoading => false)
+    //     setError(true)
+    // }
     const onCharSelected = (id) => {
         props.onCharSelected(id);
     }
@@ -101,12 +94,12 @@ const CharList = (props) => {
     }
     const items = renderItems(charList);
     const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
     const text = <p style={{fontSize: 20, marginTop: 40}}>you unlocked all the characters</p>
     const unlockedAll = charEnded ? text : null;
     if (loading) {
         newItemLoading = !newItemLoading;
     }
+    const spinner = loading && !newItemLoading ? <Spinner/> : null;
     const newSpinner = newItemLoading ? <Spinner/> : null;
     const button = <button onClick={onRequest} className="button button__main button__long">
                         <div className="inner">load more</div>
