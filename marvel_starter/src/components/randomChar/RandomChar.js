@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
 import './randomChar.scss';
@@ -10,38 +10,26 @@ import Spinner from '../spinner/Spinner';
 
 const RandomChar = () => {
     let [char, setChar] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
 
-    const marvelService = new MarvelService();
+    const {loading, error, getCharacter, clearError} = useMarvelService();
 
     useEffect(() => {
-        updateChar()
+        updateChar();
+        // const timerId = setInterval(updateChar, 6000);
+        // return () => {
+        //     clearInterval(timerId);
+        // }
     }, [])
 
     const onCharLoaded = (char) => {
         setChar(char)
-        setLoading(loading => false)
-    }
-    const onCharLoading = () => {
-        setLoading(loading => true)
-    }
-    const onError = () => {
-        setLoading(loading => false)
-        setError(error => true)
-        // this.setState({
-        //     loading: false,
-        //     error: true
-        // });
     }
 
     const updateChar = () => {
+        clearError();
         const id = Math.floor(Math.random() * (1011401 - 1011000) + 1011000);
-        onCharLoading();
-        marvelService
-            .getCharacter(id)
+        getCharacter(id)
             .then(onCharLoaded)
-            .catch(onError);
     }
 
     const errorMessage = error ? <ErrorMessage/> : null;
