@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
 
+import { Link } from "react-router-dom";
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from '../../services/MarvelService';
-import Skeleton from '../skeleton/Skeleton'
+import Skeleton from '../skeleton/Skeleton';
 import './charInfo.scss';
 
 const CharInfo = (props) => {
@@ -79,6 +81,7 @@ const View = ({char}) => {
 const Comics = ({comics}) => {
     const newComics = comics.slice(0, 10);
     console.log(newComics.length)
+    console.log(newComics)
     if (newComics.length === 0) {
         return (
             <li>
@@ -87,10 +90,12 @@ const Comics = ({comics}) => {
         )
     }
     const items = newComics.map((item, i) => {
+        const id = item.resourceURI.match(/\d{5,}/g)
+        console.log(id)
         return (
-            <li key={i} className="char__comics-item">
+            <Link to={`/comics/${id}`} key={i} className="char__comics-item">
                 {item.name}
-            </li>
+            </Link>
         )
     })
     return items

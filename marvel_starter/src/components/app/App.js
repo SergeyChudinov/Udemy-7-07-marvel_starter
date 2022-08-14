@@ -4,7 +4,8 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import AppHeader from "../appHeader/AppHeader";
 // import MainPage from "../pages/MainPage";
 // import ComicsPage from "../pages/ComicsPage";
-import {MainPage, ComicsPage} from "../pages";    // /index.js
+import {MainPage, ComicsPage, Page404, SingleComicPage} from "../pages";    // /index.js
+
 
 
 
@@ -22,6 +23,12 @@ const App = () => {
                         </Route>
                         <Route exact path="/comics">
                             <ComicsPage/>
+                        </Route>
+                        <Route exact path="/comics/:comicId">
+                            <SingleComicPage/>
+                        </Route>
+                        <Route path="*">
+                            <Page404/>
                         </Route>
                     </Switch>
                 </main>
