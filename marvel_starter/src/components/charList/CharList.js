@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from '../../services/MarvelService';
+
+import { Transition } from 'react-transition-group';
+
 import './charList.scss';
-
-
-// import abyss from '../../resources/img/abyss.jpg';
 
 const CharList = (props) => {
 
@@ -16,6 +16,8 @@ const CharList = (props) => {
     let [newItemLoading, setNewItemLoading] = useState(false);
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false);
+    const [showCharList, setShowCharList] = useState(false);
+
 
     let {loading, error, getAllCharacters} = useMarvelService();
 
@@ -38,12 +40,10 @@ const CharList = (props) => {
         setNewItemLoading(newItemLoading => false)
         setOffset(offset => offset + 9)
         setCharEnded(charEnded => ended)
+        // showModal = true
+        setShowCharList(showCharList => true)
     }
-    // const onError = () => {
-    //     setLoading(loading => false)
-    //     setNewItemLoading(newItemLoading => false)
-    //     setError(true)
-    // }
+
     const onCharSelected = (id) => {
         props.onCharSelected(id);
     }
@@ -59,13 +59,26 @@ const CharList = (props) => {
     }
 
     const renderItems = (arr) => {
+        const duration = 3000;
+        const defaultStyle = {
+            transition: `all ${duration}ms ease-in-out`,  //opacity visibility
+            opacity: 0,
+            visibility: 'hidden',
+        }
+        const transitionStyles = {
+            entering: { opacity: 1, visibility: 'visible'  },
+            entered:  { opacity: 1, visibility: 'visible'  },
+            exiting:  { opacity: 0, visibility: 'hidden' },
+            exited:  { opacity: 0, visibility: 'hidden' },
+        };
+        
+
         const items =  arr.map((item, i) => {
             let imgStyle = {'objectFit' : 'cover'};
             if (item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
                 imgStyle = {'objectFit' : 'unset'};
-            }
-            
-            return (
+            }        
+            return (               
                 <li 
                     className='char__item'
                     tabIndex={0}
@@ -83,13 +96,21 @@ const CharList = (props) => {
                     }}>
                     <img src={item.thumbnail} alt={item.name} style={imgStyle}/>
                     <div className="char__name">{item.name}</div>
-                </li>
+                </li>                
             )
         });
         return (
-            <ul className="char__grid">
-                {items}
-            </ul>
+            <Transition timeout={duration} in={showCharList}>   
+                {state => (
+                    <ul className="char__grid" style={{
+                        ...defaultStyle,
+                        ...transitionStyles[state]
+                    }}>
+                        {items}
+                    </ul>
+                )}
+            </Transition>
+
         )
     }
     const items = renderItems(charList);
