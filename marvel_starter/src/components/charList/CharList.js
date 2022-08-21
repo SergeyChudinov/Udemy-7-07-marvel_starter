@@ -40,7 +40,6 @@ const CharList = (props) => {
         setNewItemLoading(newItemLoading => false)
         setOffset(offset => offset + 9)
         setCharEnded(charEnded => ended)
-        // showModal = true
         setShowCharList(showCharList => true)
     }
 
@@ -59,7 +58,7 @@ const CharList = (props) => {
     }
 
     const renderItems = (arr) => {
-        const duration = 3000;
+        const duration = 1000;
         const defaultStyle = {
             transition: `all ${duration}ms ease-in-out`,  //opacity visibility
             opacity: 0,

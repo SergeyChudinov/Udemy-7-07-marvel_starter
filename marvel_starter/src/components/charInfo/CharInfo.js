@@ -80,7 +80,6 @@ const View = ({char}) => {
 }
 const Comics = ({comics}) => {
     const newComics = comics.slice(0, 10);
-    console.log(newComics.length)
     if (newComics.length === 0) {
         return (
             <li>
@@ -90,7 +89,6 @@ const Comics = ({comics}) => {
     }
     const items = newComics.map((item, i) => {
         const id = item.resourceURI.match(/\d{5,}/g)
-        console.log(id)
         return (
             <Link to={`/comics/${id}`} key={i} className="char__comics-item">
                 {item.name}

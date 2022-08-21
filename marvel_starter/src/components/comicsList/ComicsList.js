@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 
 import { Link } from "react-router-dom";
 
-// import PropTypes from 'prop-types';
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from '../../services/MarvelService';
 
 import './comicsList.scss';
-// import uw from '../../resources/img/UW.png';
-// import xMen from '../../resources/img/x-men.png';
+
 
 const ComicsList = () => {
     const [comicsList, setComicsList] = useState([]);

@@ -73,7 +73,6 @@ const View = ({char}) => {
         description = array.join('');
     }
 
-    // <img {notAvalable ? style={{objectFit: 'contain'} : style={{objectFit: 'cover'}}/>}
     return (
         <div className="randomchar__block">
             <img style={style}
