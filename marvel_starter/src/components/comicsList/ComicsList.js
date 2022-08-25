@@ -9,23 +9,39 @@ import useMarvelService from '../../services/MarvelService';
 
 import './comicsList.scss';
 
+const setContent = (process, Component, newItemLoading) => {
+    switch (process) {
+        case 'waiting':
+            return <Spinner/>;
+        case 'loading':
+            return newItemLoading ? <Component/> : <Spinner/>;
+        case 'confirmed':
+            return <Component/>;
+        case 'error':
+            return <ErrorMessage/>;
+        default:
+            throw new Error('Unexpected process state');
+    }
+}
 
 const ComicsList = () => {
     const [comicsList, setComicsList] = useState([]);
-    let [newItemLoading, setNewItemLoading] = useState(false);
+    const [newItemLoading, setNewItemLoading] = useState(false);
     const [offset, setOffset] = useState(0);
     const [comicsEnded, setComicsEnded] = useState(false);
 
-    let {loading, error, getAllComics} = useMarvelService();
+    const {getAllComics, process, setProcess} = useMarvelService();
 
     useEffect(() => {
-        onRequest(true)
+        onRequest(offset, true)
+        // eslint-disable-next-line
     }, [])
 
-    const onRequest = (initial) => {   
+    const onRequest = (offset, initial) => {   
         initial ? setNewItemLoading(false) : setNewItemLoading(true);   
         getAllComics(offset)
             .then(onComicsListLoaded)
+            .then(() => setProcess('confirmed'))
     }
     const onComicsListLoaded = (newComicsList) => {
         let ended = false;
@@ -57,28 +73,17 @@ const ComicsList = () => {
             </ul>
         )
     }
-
-    const items = renderItems(comicsList);
-    const errorMessage = error ? <ErrorMessage/> : null;
+    
     const text = <p style={{fontSize: 20, marginTop: 40}}>you unlocked all the characters</p>
     const unlockedAll = comicsEnded ? text : null;
-    if (loading) {
-        newItemLoading = !newItemLoading;
-    }
-    const spinner = loading && !newItemLoading ? <Spinner/> : null;
-    const newSpinner = newItemLoading ? <Spinner/> : null;
-    const button = <button onClick={onRequest} className="button button__main button__long">
+    const button = <button onClick={() => onRequest(offset)} className="button button__main button__long">
                         <div className="inner">load more</div>
                     </button>
     
     return (
         <div className="comics__list">
-
-            {errorMessage || spinner || items}
-            {newSpinner}
-            {unlockedAll || button}
-
-            
+            {setContent(process, () => renderItems(comicsList), newItemLoading)}
+            {unlockedAll || button}           
         </div>
     )
 }
