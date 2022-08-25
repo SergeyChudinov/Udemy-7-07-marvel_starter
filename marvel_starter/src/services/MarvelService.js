@@ -1,7 +1,7 @@
 import {useHttp} from '../hooks/http.hook';
 
 const useMarvelService = () => {
-    const {loading, request, error, clearError} = useHttp();
+    const { request, clearError, process, setProcess} = useHttp();
     const _apiBase = 'https://gateway.marvel.com:443/v1/public/';
     // ЗДЕСЬ БУДЕТ ВАШ КЛЮЧ, ЭТОТ КЛЮЧ МОЖЕТ НЕ РАБОТАТЬ
     const _apiKey = 'apikey=76bc5db775e2f95ca676f748bfd77c09';
@@ -10,7 +10,7 @@ const useMarvelService = () => {
     const _baseOffset = 210;
 
 
-    const getAllCharacters = async (offset) => {
+    const getAllCharacters = async (offset = _baseOffset) => {
         const res = await request(`${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`);
         return res.data.results.map(_transformCharacter);
     }
@@ -52,7 +52,15 @@ const useMarvelService = () => {
             price: comics.prices.price ? `${comics.prices.price}$` : 'not available'
         }
     }
-    return {loading, error, clearError, getAllCharacters, getCharacterByName, getCharacter, getAllComics, getComic}
+    return {
+            clearError,
+            process,
+            setProcess,
+            getAllCharacters,
+            getCharacterByName,
+            getCharacter,
+            getAllComics,
+            getComic}
 }
 
 export default useMarvelService;

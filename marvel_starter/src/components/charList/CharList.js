@@ -1,34 +1,46 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import PropTypes from 'prop-types';
 
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import useMarvelService from '../../services/MarvelService';
-
 import { Transition } from 'react-transition-group';
-
 import './charList.scss';
 
-const CharList = (props) => {
+const setContent = (process, Component, newItemLoading) => {
+    switch (process) {
+        case 'waiting':
+            return <Spinner/>;
+        case 'loading':
+            return newItemLoading ? <Component/> : <Spinner/>;
+        case 'confirmed':
+            return <Component/>;
+        case 'error':
+            return <ErrorMessage/>;
+        default:
+            throw new Error('Unexpected process state');
+    }
+}
 
+const CharList = (props) => {
 
     const [charList, setCharList] = useState([]);
     let [newItemLoading, setNewItemLoading] = useState(false);
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false);
     const [showCharList, setShowCharList] = useState(false);
-
-
-    let {loading, error, getAllCharacters} = useMarvelService();
+    let {getAllCharacters, process, setProcess} = useMarvelService();
 
     useEffect(() => {
-        onRequest(true)
+        onRequest(offset, true)
+        // eslint-disable-next-line
     }, [])
     
-    const onRequest = (initial) => {
+    const onRequest = (offset, initial) => {
         initial ? setNewItemLoading(false) : setNewItemLoading(true);       
         getAllCharacters(offset)
             .then(onCharListLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const onCharListLoaded = (newCharList) => {
@@ -37,16 +49,11 @@ const CharList = (props) => {
             ended = true;   
         }
         setCharList(charList => [...charList, ...newCharList])
-        setNewItemLoading(newItemLoading => false)
-        setOffset(offset => offset + 9)
-        setCharEnded(charEnded => ended)
+        setNewItemLoading(false)
+        setOffset(offset + 9)
+        setCharEnded(ended)
         setShowCharList(showCharList => true)
     }
-
-    const onCharSelected = (id) => {
-        props.onCharSelected(id);
-    }
-
     const itemRefs = useRef([]);
     // const setRef = (ref) => {
     //     itemRefs.push(ref);
@@ -84,12 +91,12 @@ const CharList = (props) => {
                     ref={el => itemRefs.current[i] = el}
                     key={item.id}
                     onClick={() => {
-                    onCharSelected(item.id);
+                    props.onCharSelected(item.id);
                     focusOnItem(i);
                     }} 
                     onKeyPress={(e) => {
                         if (e.key === ' ' || e.key === "Enter") {
-                            onCharSelected(item.id);
+                            props.onCharSelected(item.id);
                             focusOnItem(i);
                         }
                     }}>
@@ -109,25 +116,23 @@ const CharList = (props) => {
                     </ul>
                 )}
             </Transition>
-
         )
     }
-    const items = renderItems(charList);
-    const errorMessage = error ? <ErrorMessage/> : null;
+
+    const elements = useMemo(() => {
+        return setContent(process, () => renderItems(charList), newItemLoading);
+        // eslint-disable-next-line
+    }, [process])
+
     const text = <p style={{fontSize: 20, marginTop: 40}}>you unlocked all the characters</p>
     const unlockedAll = charEnded ? text : null;
-    if (loading) {
-        newItemLoading = !newItemLoading;
-    }
-    const spinner = loading && !newItemLoading ? <Spinner/> : null;
-    const newSpinner = newItemLoading ? <Spinner/> : null;
-    const button = <button onClick={onRequest} className="button button__main button__long">
-                        <div className="inner">load more</div>
-                    </button>
+    const button = <button disabled={newItemLoading} onClick={() => onRequest(offset)} className="button button__main button__long">
+                       <div className="inner">load more</div>
+                   </button>
     return (
         <div className="char__list">
-            {errorMessage || spinner || items}
-            {newSpinner}
+            {setContent(process, () => renderItems(charList), newItemLoading)}
+            {/* {elements} */}
             {unlockedAll || button}
         </div>
     )
