@@ -131,8 +131,7 @@ const CharList = (props) => {
                    </button>
     return (
         <div className="char__list">
-            {setContent(process, () => renderItems(charList), newItemLoading)}
-            {/* {elements} */}
+            {elements}
             {unlockedAll || button}
         </div>
     )
