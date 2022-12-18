@@ -54,6 +54,7 @@ const CharList = (props) => {
         setCharEnded(ended)
         setShowCharList(showCharList => true)
     }
+    console.log('render');
     const itemRefs = useRef([]);
     // const setRef = (ref) => {
     //     itemRefs.push(ref);
